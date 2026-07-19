@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Posts Grid — A powerful, free Gutenberg block</title>
+		<meta
+			name="description"
+			content="Build responsive post grids in Gutenberg with flexible queries, complete card controls, and AJAX pagination. Free, open source, and built for WordPress."
+		/>
+		<meta name="theme-color" content="#173d2d" />
+		<meta name="color-scheme" content="light" />
+		<link
+			rel="canonical"
+			href="https://vanokhin.github.io/vova-posts-grid/"
+		/>
+		<link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+		<script>
+			document.documentElement.classList.add( 'js' );
+		</script>
+		<link rel="stylesheet" href="./styles.css" />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Posts Grid" />
+		<meta
+			property="og:title"
+			content="Posts Grid — A powerful, free Gutenberg block"
+		/>
+		<meta
+			property="og:description"
+			content="Flexible queries, responsive layouts, polished cards, and AJAX pagination in one native WordPress block."
+		/>
+		<meta
+			property="og:url"
+			content="https://vanokhin.github.io/vova-posts-grid/"
+		/>
+		<meta
+			property="og:image"
+			content="https://vanokhin.github.io/vova-posts-grid/social-preview.png"
+		/>
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta
+			property="og:image:alt"
+			content="Posts Grid for WordPress — powerful, responsive, free"
+		/>
+
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta
+			name="twitter:title"
+			content="Posts Grid — A powerful, free Gutenberg block"
+		/>
+		<meta
+			name="twitter:description"
+			content="Flexible queries, responsive layouts, polished cards, and AJAX pagination in one native WordPress block."
+		/>
+		<meta
+			name="twitter:image"
+			content="https://vanokhin.github.io/vova-posts-grid/social-preview.png"
+		/>
+
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "SoftwareApplication",
+				"name": "Vova's Posts Grid",
+				"applicationCategory": "WordPressPlugin",
+				"operatingSystem": "WordPress 6.5 or later",
+				"softwareVersion": "1.0.0",
+				"description": "A responsive Posts Grid block with flexible queries and AJAX pagination.",
+				"license": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html",
+				"url": "https://vanokhin.github.io/vova-posts-grid/",
+				"downloadUrl": "https://vanokhin.github.io/vova-posts-grid/downloads/vova-posts-grid-1.0.0.zip",
+				"author": {
+					"@type": "Person",
+					"name": "Vova Anokhin"
+				},
+				"offers": {
+					"@type": "Offer",
+					"price": "0",
+					"priceCurrency": "USD"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<a class="skip-link" href="#main">Skip to content</a>
+
+		<header class="site-header" data-header>
+			<div class="shell header-inner">
+				<a class="brand" href="#top" aria-label="Posts Grid home">
+					<span class="brand-mark" aria-hidden="true">
+						<span></span><span></span><span></span><span></span>
+					</span>
+					<span>Posts Grid</span>
+				</a>
+
+				<button
+					class="menu-toggle"
+					type="button"
+					aria-expanded="false"
+					aria-controls="site-navigation"
+					data-menu-toggle
+				>
+					<span class="sr-only">Toggle navigation</span>
+					<span></span><span></span>
+				</button>
+
+				<nav
+					id="site-navigation"
+					class="site-nav"
+					aria-label="Primary navigation"
+					data-menu
+				>
+					<a href="#features">Features</a>
+					<a href="#controls">Controls</a>
+					<a href="#install">Install</a>
+					<a href="#faq">FAQ</a>
+					<a
+						class="nav-github"
+						href="https://github.com/vanokhin/vova-posts-grid"
+						target="_blank"
+						rel="noreferrer"
+					>
+						<svg aria-hidden="true" viewBox="0 0 24 24">
+							<path
+								d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4M9 18c-4.51 2-5-2-7-2"
+							/>
+						</svg>
+						GitHub
+					</a>
+				</nav>
+			</div>
+		</header>
+
+		<main id="main">
+			<section id="top" class="hero">
+				<div class="hero-grid-pattern" aria-hidden="true"></div>
+				<div class="shell hero-layout">
+					<div class="hero-copy" data-reveal>
+						<div class="eyebrow">
+							<span></span> Free &amp; open source
+						</div>
+						<h1>
+							Your posts.<br /><em>Exactly</em> where<br />they
+							belong.
+						</h1>
+						<p class="hero-lead">
+							Build precise, responsive content grids inside
+							Gutenberg—with powerful queries, complete card
+							controls, and smooth AJAX pagination.
+						</p>
+						<div class="hero-actions">
+							<a
+								class="button button-primary"
+								href="./downloads/vova-posts-grid-1.0.0.zip"
+							>
+								Download v1.0.0
+								<svg aria-hidden="true" viewBox="0 0 24 24">
+									<path d="M7 7h10v10M7 17 17 7" />
+								</svg>
+							</a>
+							<a
+								class="button button-secondary"
+								href="https://github.com/vanokhin/vova-posts-grid"
+								target="_blank"
+								rel="noreferrer"
+							>
+								View source
+							</a>
+						</div>
+						<ul class="compatibility" aria-label="Compatibility">
+							<li>WordPress 6.5+</li>
+							<li>PHP 7.4+</li>
+							<li>GPL licensed</li>
+						</ul>
+					</div>
+
+					<div class="hero-demo" data-reveal>
+						<div
+							class="demo-orbit demo-orbit-one"
+							aria-hidden="true"
+						></div>
+						<div
+							class="demo-orbit demo-orbit-two"
+							aria-hidden="true"
+						></div>
+						<div class="editor-window">
+							<div class="editor-topbar">
+								<div class="window-dots" aria-hidden="true">
+									<span></span><span></span><span></span>
+								</div>
+								<div class="editor-title">
+									<span class="wp-icon">W</span> Edit page
+								</div>
+								<div class="publish-button">Publish</div>
+							</div>
+
+							<div class="editor-body">
+								<div class="editor-canvas">
+									<div class="canvas-kicker">THE JOURNAL</div>
+									<div class="canvas-heading">
+										Latest stories
+									</div>
+									<div
+										class="demo-grid"
+										data-demo-grid
+										data-columns="3"
+									>
+										<article class="demo-card">
+											<div
+												class="demo-image demo-image-one"
+											>
+												<span>Design</span>
+											</div>
+											<div class="demo-meta">
+												MAY 18 · 6 MIN
+											</div>
+											<h3>
+												Small details, better products
+											</h3>
+										</article>
+										<article class="demo-card">
+											<div
+												class="demo-image demo-image-two"
+											>
+												<span>Process</span>
+											</div>
+											<div class="demo-meta">
+												MAY 14 · 4 MIN
+											</div>
+											<h3>A calmer creative workflow</h3>
+										</article>
+										<article class="demo-card">
+											<div
+												class="demo-image demo-image-three"
+											>
+												<span>Ideas</span>
+											</div>
+											<div class="demo-meta">
+												MAY 09 · 8 MIN
+											</div>
+											<h3>
+												Make room for the unexpected
+											</h3>
+										</article>
+									</div>
+									<div
+										class="block-selection"
+										aria-hidden="true"
+									>
+										<span>Posts Grid</span>
+									</div>
+								</div>
+
+								<aside
+									class="editor-sidebar"
+									aria-label="Interactive Posts Grid settings preview"
+								>
+									<div class="sidebar-heading">
+										<strong>Posts Grid</strong>
+										<span aria-hidden="true">×</span>
+									</div>
+									<div
+										class="sidebar-tabs"
+										role="tablist"
+										aria-label="Settings sections"
+									>
+										<button
+											type="button"
+											id="demo-tab-query"
+											role="tab"
+											aria-selected="true"
+											aria-controls="demo-panel-query"
+											data-demo-tab="query"
+										>
+											Query
+										</button>
+										<button
+											type="button"
+											id="demo-tab-block"
+											role="tab"
+											aria-selected="false"
+											aria-controls="demo-panel-block"
+											tabindex="-1"
+											data-demo-tab="block"
+										>
+											Block
+										</button>
+										<button
+											type="button"
+											id="demo-tab-card"
+											role="tab"
+											aria-selected="false"
+											aria-controls="demo-panel-card"
+											tabindex="-1"
+											data-demo-tab="card"
+										>
+											Card
+										</button>
+									</div>
+
+									<div
+										class="settings-panel"
+										id="demo-panel-query"
+										role="tabpanel"
+										aria-labelledby="demo-tab-query"
+										data-demo-panel="query"
+									>
+										<label
+											>Query type<span
+												>Dynamic query</span
+											></label
+										>
+										<label
+											>Post type<span>Posts</span></label
+										>
+										<label
+											>Posts per page<span>6</span></label
+										>
+										<div class="toggle-row">
+											<span>Require featured image</span
+											><i></i>
+										</div>
+									</div>
+									<div
+										class="settings-panel"
+										id="demo-panel-block"
+										role="tabpanel"
+										aria-labelledby="demo-tab-block"
+										data-demo-panel="block"
+										hidden
+									>
+										<span class="control-label"
+											>Desktop columns</span
+										>
+										<div
+											class="column-switcher"
+											aria-label="Preview column count"
+										>
+											<button
+												type="button"
+												class="is-active"
+												data-columns="3"
+											>
+												3
+											</button>
+											<button
+												type="button"
+												data-columns="2"
+											>
+												2
+											</button>
+											<button
+												type="button"
+												data-columns="1"
+											>
+												1
+											</button>
+										</div>
+										<label
+											>Horizontal gap<span
+												>24 px</span
+											></label
+										>
+										<label
+											>Pagination<span
+												>Numbers + Prev / Next</span
+											></label
+										>
+									</div>
+									<div
+										class="settings-panel"
+										id="demo-panel-card"
+										role="tabpanel"
+										aria-labelledby="demo-tab-card"
+										data-demo-panel="card"
+										hidden
+									>
+										<label
+											>Image ratio<span>16:9</span></label
+										>
+										<label
+											>Read more style<span
+												>Button</span
+											></label
+										>
+										<div class="swatch-row">
+											<span>Accent color</span><i></i>
+										</div>
+										<div class="toggle-row">
+											<span>Full card clickable</span
+											><i class="is-on"></i>
+										</div>
+									</div>
+								</aside>
+							</div>
+						</div>
+						<div class="demo-note">
+							<span>Live preview</span> Try the settings tabs
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="trust-strip" aria-label="Plugin principles">
+				<div class="shell trust-list">
+					<span>One native block</span>
+					<i aria-hidden="true"></i>
+					<span>No account</span>
+					<i aria-hidden="true"></i>
+					<span>No external service</span>
+					<i aria-hidden="true"></i>
+					<span>No premium tier</span>
+				</div>
+			</section>
+
+			<section id="features" class="section features-section">
+				<div class="shell">
+					<div class="section-heading" data-reveal>
+						<div class="section-number">01 / FEATURES</div>
+						<h2>One focused block.<br /><em>Serious</em> range.</h2>
+						<p>
+							Posts Grid gives you the power of a custom content
+							query without turning your editor into a page
+							builder.
+						</p>
+					</div>
+
+					<div class="bento-grid">
+						<article class="feature-card feature-query" data-reveal>
+							<div class="feature-icon">
+								<svg aria-hidden="true" viewBox="0 0 24 24">
+									<path
+										d="M10 5H3m9 14H3M14 3v4m2 10v4m5-9h-9m9 7h-5m5-14h-7M8 10v4m0-2H3"
+									/>
+								</svg>
+							</div>
+							<div>
+								<span class="feature-label">Query</span>
+								<h3>Find exactly the right content</h3>
+								<p>
+									Query public post types and taxonomies, or
+									hand-pick individual posts. Filter by
+									author, keyword, date, image, and custom
+									fields.
+								</p>
+							</div>
+							<div class="query-chips" aria-hidden="true">
+								<span>Post type: Articles</span
+								><span>Topic: Design</span
+								><span>Date: Last 30 days</span
+								><span>Order: Newest</span>
+							</div>
+						</article>
+
+						<article
+							class="feature-card feature-responsive"
+							data-reveal
+						>
+							<div class="feature-icon">
+								<svg aria-hidden="true" viewBox="0 0 24 24">
+									<rect
+										x="5"
+										y="2"
+										width="14"
+										height="20"
+										rx="2"
+									/>
+									<path d="M12 18h.01" />
+								</svg>
+							</div>
+							<span class="feature-label">Responsive</span>
+							<h3>A grid for every screen</h3>
+							<p>
+								Set independent desktop, tablet, and mobile
+								columns—plus horizontal and vertical spacing.
+							</p>
+							<div class="device-stack" aria-hidden="true">
+								<div class="device desktop">
+									<i></i><i></i><i></i>
+								</div>
+								<div class="device tablet"><i></i><i></i></div>
+								<div class="device phone"><i></i></div>
+							</div>
+						</article>
+
+						<article
+							class="feature-card feature-pagination"
+							data-reveal
+						>
+							<div class="feature-icon">
+								<svg aria-hidden="true" viewBox="0 0 24 24">
+									<path
+										d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5m5 4a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16m0 5v-5h5"
+									/>
+								</svg>
+							</div>
+							<span class="feature-label">Pagination</span>
+							<h3>Keep readers moving</h3>
+							<p>
+								Load new pages through the WordPress REST API
+								without a full-page refresh. Optional loading
+								skeletons keep every transition clear.
+							</p>
+							<div class="mini-pagination" aria-hidden="true">
+								<span>←</span><span class="current">1</span
+								><span>2</span><span>3</span><span>→</span>
+							</div>
+						</article>
+
+						<article
+							class="feature-card feature-native"
+							data-reveal
+						>
+							<div class="feature-icon">
+								<svg aria-hidden="true" viewBox="0 0 24 24">
+									<path
+										d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+									/>
+									<path d="m9 12 2 2 4-4" />
+								</svg>
+							</div>
+							<div>
+								<span class="feature-label"
+									>Native by design</span
+								>
+								<h3>Your site stays yours</h3>
+								<p>
+									Built with WordPress data and editor
+									components. No account, hosted dashboard,
+									tracking service, or vendor lock-in.
+								</p>
+							</div>
+							<div class="native-badge">
+								<span>W</span> Powered by your WordPress site
+							</div>
+						</article>
+					</div>
+				</div>
+			</section>
+
+			<section id="controls" class="section controls-section">
+				<div class="shell">
+					<div class="controls-layout">
+						<div class="controls-copy" data-reveal>
+							<div class="section-number light">
+								02 / CONTROLS
+							</div>
+							<h2>Shape every card.<br />Skip the custom CSS.</h2>
+							<p>
+								Choose what appears, put it in the right order,
+								and tune the details that make a grid feel at
+								home in your theme.
+							</p>
+							<a href="#install" class="text-link"
+								>See how to install <span>→</span></a
+							>
+						</div>
+
+						<div class="control-groups" data-reveal>
+							<article>
+								<span>01</span>
+								<div>
+									<h3>Images</h3>
+									<p>
+										Size, aspect ratio, fit, focal position,
+										and border radius.
+									</p>
+								</div>
+							</article>
+							<article>
+								<span>02</span>
+								<div>
+									<h3>Card structure</h3>
+									<p>
+										Reorder or hide image, title, metadata,
+										excerpt, and read-more link.
+									</p>
+								</div>
+							</article>
+							<article>
+								<span>03</span>
+								<div>
+									<h3>Metadata</h3>
+									<p>
+										Date, author, categories, comments,
+										reading time, modified date, and
+										taxonomy badges.
+									</p>
+								</div>
+							</article>
+							<article>
+								<span>04</span>
+								<div>
+									<h3>Type &amp; color</h3>
+									<p>
+										Individual text sizes, line height,
+										accent, meta, and excerpt colors.
+									</p>
+								</div>
+							</article>
+							<article>
+								<span>05</span>
+								<div>
+									<h3>Links &amp; states</h3>
+									<p>
+										Clickable cards, new-tab links, empty
+										messages, and optional loading
+										skeletons.
+									</p>
+								</div>
+							</article>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="section workflow-section">
+				<div class="shell">
+					<div class="section-heading compact" data-reveal>
+						<div class="section-number">03 / WORKFLOW</div>
+						<h2>From idea to grid<br />in three steps.</h2>
+					</div>
+
+					<ol class="workflow-list">
+						<li data-reveal>
+							<span class="step-number">01</span>
+							<div
+								class="step-visual add-block"
+								aria-hidden="true"
+							>
+								<div class="search-bar">
+									⌕&nbsp;&nbsp; Posts Grid
+								</div>
+								<div class="block-tile">
+									<span class="tiny-grid"
+										><i></i><i></i><i></i><i></i></span
+									>Posts Grid
+								</div>
+							</div>
+							<h3>Add the block</h3>
+							<p>
+								Insert Posts Grid from the dedicated Vova’s
+								Posts Grid category in Gutenberg.
+							</p>
+						</li>
+						<li data-reveal>
+							<span class="step-number">02</span>
+							<div
+								class="step-visual query-visual"
+								aria-hidden="true"
+							>
+								<span>Dynamic query</span><span>Posts</span
+								><span>6 per page</span>
+							</div>
+							<h3>Choose your content</h3>
+							<p>
+								Build a live query or select specific posts,
+								then refine the result with focused filters.
+							</p>
+						</li>
+						<li data-reveal>
+							<span class="step-number">03</span>
+							<div
+								class="step-visual tune-visual"
+								aria-hidden="true"
+							>
+								<div><i></i><i></i><i></i></div>
+								<span></span><span></span>
+							</div>
+							<h3>Make it yours</h3>
+							<p>
+								Tune the grid and card in the sidebar. The
+								editor preview updates as you work.
+							</p>
+						</li>
+					</ol>
+				</div>
+			</section>
+
+			<section id="install" class="section install-section">
+				<div class="install-shape" aria-hidden="true"></div>
+				<div class="shell install-layout">
+					<div class="install-copy" data-reveal>
+						<div class="section-number">04 / INSTALL</div>
+						<h2>Free means<br /><em>free.</em></h2>
+						<p>
+							Every query, layout, and card control is included.
+							No trial, no paid upgrade, and no account to create.
+						</p>
+						<a
+							class="button button-dark"
+							href="./downloads/vova-posts-grid-1.0.0.zip"
+						>
+							Download plugin ZIP
+							<svg aria-hidden="true" viewBox="0 0 24 24">
+								<path d="M7 7h10v10M7 17 17 7" />
+							</svg>
+						</a>
+					</div>
+
+					<div class="install-card" data-reveal>
+						<div class="install-card-top">
+							<span>Install in WordPress</span>
+							<span class="version-pill">v1.0.0</span>
+						</div>
+						<ol>
+							<li>
+								<span>1</span>
+								<div>
+									<strong>Download</strong>
+									<p>
+										Save the plugin ZIP using the button on
+										this page.
+									</p>
+								</div>
+							</li>
+							<li>
+								<span>2</span>
+								<div>
+									<strong>Upload</strong>
+									<p>
+										In WordPress, open Plugins → Add New
+										Plugin → Upload Plugin.
+									</p>
+								</div>
+							</li>
+							<li>
+								<span>3</span>
+								<div>
+									<strong>Activate</strong>
+									<p>
+										Activate Vova’s Posts Grid, then add
+										Posts Grid in the block editor.
+									</p>
+								</div>
+							</li>
+						</ol>
+						<div class="requirements">
+							<span>Requires WordPress 6.5+</span
+							><span>Requires PHP 7.4+</span>
+							<a href="./downloads/SHA256SUMS"
+								>SHA-256 checksum</a
+							>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section id="faq" class="section faq-section">
+				<div class="shell faq-layout">
+					<div class="faq-heading" data-reveal>
+						<div class="section-number">05 / FAQ</div>
+						<h2>A few useful<br />answers.</h2>
+					</div>
+
+					<div class="faq-list" data-reveal>
+						<details>
+							<summary>
+								Which content can the block display?<span
+									aria-hidden="true"
+								></span>
+							</summary>
+							<p>
+								Any public post type and its public taxonomies,
+								or a hand-picked list of specific posts.
+							</p>
+						</details>
+						<details>
+							<summary>
+								Does pagination reload the whole page?<span
+									aria-hidden="true"
+								></span>
+							</summary>
+							<p>
+								No. Posts Grid loads the selected page through
+								the WordPress REST API and updates the grid in
+								place.
+							</p>
+						</details>
+						<details>
+							<summary>
+								Can the layout adapt to different screens?<span
+									aria-hidden="true"
+								></span>
+							</summary>
+							<p>
+								Yes. Desktop, tablet, and mobile columns can be
+								configured independently, along with horizontal
+								and vertical spacing.
+							</p>
+						</details>
+						<details>
+							<summary>
+								Does it connect to an external service?<span
+									aria-hidden="true"
+								></span>
+							</summary>
+							<p>
+								No. The plugin works with content and APIs
+								provided by the WordPress site where it is
+								installed.
+							</p>
+						</details>
+						<details>
+							<summary>
+								Can I use it on a commercial website?<span
+									aria-hidden="true"
+								></span>
+							</summary>
+							<p>
+								Yes. Posts Grid is released under the
+								GPL-2.0-or-later license and is free to use,
+								study, modify, and share.
+							</p>
+						</details>
+					</div>
+				</div>
+			</section>
+
+			<section class="cta-section">
+				<div class="shell cta-card" data-reveal>
+					<div class="cta-mark" aria-hidden="true">
+						<span></span><span></span><span></span><span></span>
+					</div>
+					<div>
+						<span class="cta-kicker">Ready when you are</span>
+						<h2>Give your content<br />a better grid.</h2>
+					</div>
+					<div class="cta-actions">
+						<a
+							class="button button-lime"
+							href="./downloads/vova-posts-grid-1.0.0.zip"
+							>Download free <span>↗</span></a
+						>
+						<a
+							href="https://github.com/vanokhin/vova-posts-grid/issues"
+							target="_blank"
+							rel="noreferrer"
+							>Report an issue</a
+						>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<footer class="site-footer">
+			<div class="shell footer-main">
+				<a class="brand footer-brand" href="#top">
+					<span class="brand-mark" aria-hidden="true"
+						><span></span><span></span><span></span><span></span
+					></span>
+					<span>Posts Grid</span>
+				</a>
+				<p>A focused, powerful Posts Grid block for WordPress.</p>
+				<nav aria-label="Footer navigation">
+					<a href="#features">Features</a
+					><a href="#install">Install</a
+					><a href="https://github.com/vanokhin/vova-posts-grid"
+						>GitHub</a
+					>
+				</nav>
+			</div>
+			<div class="shell footer-bottom">
+				<span>© <span data-year>2026</span> Vova Anokhin</span>
+				<span>GPL-2.0-or-later</span>
+			</div>
+		</footer>
+
+		<script src="./script.js" defer></script>
+	</body>
+</html>

@@ -15,8 +15,13 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: vova-posts-grid.php
-#: vova-posts-grid.php:63
+#: vova-posts-grid.php:64
 msgid "Vova's Posts Grid"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: vova-posts-grid.php
+msgid "https://vanokhin.github.io/vova-posts-grid/"
 msgstr ""
 
 #. Description of the plugin

@@ -1,6 +1,7 @@
 <?php
 /**
  * Plugin Name: Vova's Posts Grid
+ * Plugin URI: https://vanokhin.github.io/vova-posts-grid/
  * Description: A responsive posts grid block with flexible queries and AJAX pagination.
  * Version: 1.0.0
  * Author: Vova Anokhin
