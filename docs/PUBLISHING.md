@@ -1,6 +1,28 @@
-# Publishing the Posts Grid website
+# Publishing the Posts Grid plugin and website
 
-The website is a dependency-free static site in `docs/`. A GitHub Actions workflow publishes it whenever website files are pushed to `main`.
+GitHub Actions publishes installable plugin archives from version tags and deploys the dependency-free static site in `docs/` from `main`.
+
+## Publishing a GitHub Release
+
+The release workflow builds and publishes the installable plugin ZIP whenever a `v*` tag is pushed. The tag must exactly match the version in `package.json`, including the leading `v`.
+
+1. Update `package.json` and `package-lock.json` together:
+
+    ```bash
+    npm version 1.1.0 --no-git-tag-version
+    ```
+
+2. Update the changelog in `readme.txt` and any version references in `docs/`.
+3. Run `npm run export` locally to verify the release archive.
+4. Commit the release changes and push them to `main`.
+5. Create and push the matching tag:
+
+    ```bash
+    git tag -a v1.1.0 -m "v1.1.0"
+    git push origin v1.1.0
+    ```
+
+The workflow creates a GitHub Release with generated release notes, `vova-posts-grid-<version>.zip`, the stable `vova-posts-grid.zip` download, and `SHA256SUMS`. A version mismatch stops the release before publication.
 
 ## First publication
 
@@ -30,18 +52,11 @@ Edit files in `docs/` and push them to `main`. The workflow deploys only when th
 
 When the plugin version changes:
 
-1. Run `npm run export` to create the release ZIP.
-2. Copy the new ZIP from `dist/` to `docs/downloads/`.
-3. Regenerate `docs/downloads/SHA256SUMS` for the new ZIP.
-4. Remove the previous ZIP from `docs/downloads/` when it is no longer needed.
-5. Update all of these values in `docs/index.html`:
+1. Update `softwareVersion` in the `docs/index.html` JSON-LD block.
 
--   the visible version labels;
--   `softwareVersion` in the JSON-LD block;
--   every direct ZIP URL;
--   the ZIP URL in `downloadUrl`.
+2. Update `docs/social-preview.svg` and regenerate `docs/social-preview.png` if the version is shown there.
 
-Also update `docs/social-preview.svg` and regenerate `docs/social-preview.png` if the version is shown there.
+The download buttons and `downloadUrl` use the permanent `releases/latest/download/vova-posts-grid.zip` URL, so they automatically resolve to the latest published GitHub Release without website changes.
 
 ## Optional custom domain
 
