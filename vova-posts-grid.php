@@ -3,7 +3,7 @@
  * Plugin Name: Vova's Posts Grid
  * Plugin URI: https://vanokhin.github.io/vova-posts-grid/
  * Description: A responsive posts grid block with flexible queries and AJAX pagination.
- * Version: 1.0.0
+ * Version: 999-version
  * Author: Vova Anokhin
  * Text Domain: vova-posts-grid
  * Domain Path: /languages
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'VOVAPG_VERSION', '1.0.0' );
+define( 'VOVAPG_VERSION', '999-version' );
 define( 'VOVAPG_PLUGIN_FILE', __FILE__ );
 define( 'VOVAPG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'VOVAPG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

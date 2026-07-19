@@ -15,7 +15,7 @@ const distIgnorePath = path.join( rootDir, '.distignore' );
 const packageMetadata = JSON.parse( fs.readFileSync( packagePath, 'utf8' ) );
 const packageName = packageMetadata.name;
 const packageVersion = packageMetadata.version;
-const expectedVersion = '1.0.0';
+const versionPlaceholder = [ '999', 'version' ].join( '-' );
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const defaultSourceDateEpoch = 1704067200;
 const minimumZipEpoch = 315532800;
@@ -81,7 +81,7 @@ const forbiddenPatterns = [
 	},
 	{
 		label: 'unresolved version placeholder',
-		value: [ '999', 'version' ].join( '-' ),
+		value: versionPlaceholder,
 	},
 ];
 
@@ -141,12 +141,26 @@ const assertEqual = ( actual, expected, label ) => {
 	}
 };
 
-const validateReleaseMetadata = () => {
+const replaceVersionPlaceholder = ( filePath ) => {
+	const contents = fs.readFileSync( filePath, 'utf8' );
+
+	fs.writeFileSync(
+		filePath,
+		contents.split( versionPlaceholder ).join( packageVersion )
+	);
+};
+
+const replaceVersionPlaceholders = ( pluginDirectory ) => {
+	[ 'vova-posts-grid.php', 'readme.txt' ].forEach( ( relativePath ) => {
+		replaceVersionPlaceholder( path.join( pluginDirectory, relativePath ) );
+	} );
+};
+
+const validateReleaseMetadata = ( pluginDirectory ) => {
 	assertEqual( packageName, 'vova-posts-grid', 'package.json name' );
-	assertEqual( packageVersion, expectedVersion, 'package.json version' );
 
 	const pluginContents = fs.readFileSync(
-		path.join( rootDir, 'vova-posts-grid.php' ),
+		path.join( pluginDirectory, 'vova-posts-grid.php' ),
 		'utf8'
 	);
 	const expectedPluginHeaders = {
@@ -171,7 +185,7 @@ const validateReleaseMetadata = () => {
 	);
 
 	const readmeContents = fs.readFileSync(
-		path.join( rootDir, 'readme.txt' ),
+		path.join( pluginDirectory, 'readme.txt' ),
 		'utf8'
 	);
 	const expectedReadmeHeaders = {
@@ -193,7 +207,7 @@ const validateReleaseMetadata = () => {
 
 	[ 'src', 'build' ].forEach( ( directory ) => {
 		const blockPath = path.join(
-			rootDir,
+			pluginDirectory,
 			directory,
 			'blocks/posts-grid/block.json'
 		);
@@ -219,7 +233,7 @@ const validateReleaseMetadata = () => {
 	} );
 
 	const potContents = fs.readFileSync(
-		path.join( rootDir, 'languages/vova-posts-grid.pot' ),
+		path.join( pluginDirectory, 'languages/vova-posts-grid.pot' ),
 		'utf8'
 	);
 
@@ -427,7 +441,9 @@ const getArchiveHash = ( archivePath ) =>
 
 const main = () => {
 	run( npmCommand, [ 'run', 'build' ] );
-	validateReleaseMetadata();
+	replaceVersionPlaceholder(
+		path.join( rootDir, 'languages/vova-posts-grid.pot' )
+	);
 
 	const distDirectory = path.join( rootDir, 'dist' );
 	const archiveName = `${ packageName }-${ packageVersion }.zip`;
@@ -458,6 +474,8 @@ const main = () => {
 			);
 		} );
 
+		replaceVersionPlaceholders( stagingPluginDirectory );
+		validateReleaseMetadata( stagingPluginDirectory );
 		validateRequiredFiles( stagingPluginDirectory );
 		validateReleaseContents( stagingPluginDirectory );
 		normalizeTree( stagingPluginDirectory, getSourceDate() );
