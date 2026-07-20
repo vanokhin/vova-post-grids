@@ -121,7 +121,7 @@
 		},
 		"readMoreLabel": {
 			"type": "string",
-			"default": "Read more"
+			"default": ""
 		},
 		"readMoreStyle": {
 			"type": "string",
@@ -145,7 +145,7 @@
 		},
 		"emptyStateText": {
 			"type": "string",
-			"default": "No posts found."
+			"default": ""
 		},
 		"loadingSkeleton": {
 			"type": "boolean",

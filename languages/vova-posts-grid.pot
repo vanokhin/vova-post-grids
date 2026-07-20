@@ -54,6 +54,7 @@ msgstr ""
 
 #: includes/class-vovapg-posts-grid.php:680
 #: src/blocks/posts-grid/config.js:46
+#: src/blocks/posts-grid/edit.js:1928
 msgid "Read more"
 msgstr ""
 
@@ -615,19 +616,19 @@ msgstr ""
 msgid "Read more label"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1942
+#: src/blocks/posts-grid/edit.js:1946
 msgid "Read More Button Padding"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1972
+#: src/blocks/posts-grid/edit.js:1976
 msgid "Typography"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:2003
+#: src/blocks/posts-grid/edit.js:2007
 msgid "Text line height"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:2030
+#: src/blocks/posts-grid/edit.js:2034
 msgid "Colors"
 msgstr ""
 

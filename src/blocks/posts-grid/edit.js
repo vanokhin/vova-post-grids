@@ -1925,7 +1925,11 @@ export default function Edit( { attributes, setAttributes } ) {
 									'Read more label',
 									'vova-posts-grid'
 								) }
-								value={ attributes.readMoreLabel }
+								placeholder={ __(
+									'Read more',
+									'vova-posts-grid'
+								) }
+								value={ attributes.readMoreLabel || '' }
 								maxLength={ MAX_READ_MORE_LABEL_LENGTH }
 								onChange={ ( readMoreLabel ) =>
 									setAttributes( {
