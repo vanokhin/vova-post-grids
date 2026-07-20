@@ -1236,7 +1236,8 @@ final class VOVAPG_Posts_Grid {
 		$output = array();
 
 		foreach ( $attributes as $name => $value ) {
-			$output[] = sprintf( '%s="%s"', esc_attr( $name ), esc_attr( (string) $value ) );
+			$escaped_value = 'href' === $name ? esc_url( (string) $value ) : esc_attr( (string) $value );
+			$output[]      = sprintf( '%s="%s"', esc_attr( $name ), $escaped_value );
 		}
 
 		return implode( ' ', $output );
