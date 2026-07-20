@@ -486,20 +486,6 @@ h3 {
 	transform: rotate(9deg);
 }
 
-.hero-scribble {
-	position: absolute;
-	z-index: 2;
-	top: 18px;
-	right: 4vw;
-	color: var(--ink);
-	font-family: var(--serif);
-	font-size: clamp(28px, 4vw, 52px);
-	font-style: italic;
-	font-weight: 700;
-	letter-spacing: -0.06em;
-	transform: rotate(8deg);
-}
-
 .free-section {
 	padding: clamp(90px, 10vw, 144px) 0;
 	overflow: hidden;
@@ -1456,10 +1442,6 @@ h3 {
 		width: 86px;
 		height: 86px;
 		font-size: 9px;
-	}
-
-	.hero-scribble {
-		display: none;
 	}
 
 	.free-section,
