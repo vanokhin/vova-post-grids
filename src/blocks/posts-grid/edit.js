@@ -37,6 +37,19 @@ import {
 	QUERY_TYPE_OPTIONS,
 	READ_MORE_STYLE_OPTIONS,
 } from './config';
+import {
+	MAX_ELEMENTS,
+	MAX_EMPTY_STATE_TEXT_LENGTH,
+	MAX_KEYWORD_LENGTH,
+	MAX_META_FIELDS,
+	MAX_OBJECT_SLUG_LENGTH,
+	MAX_POSTS_PER_PAGE,
+	MAX_POST_TOKEN_TITLE_LENGTH,
+	MAX_PRESENTATION_STRING_LENGTH,
+	MAX_READ_MORE_LABEL_LENGTH,
+	MAX_SELECTED_POSTS,
+	MAX_TERMS,
+} from './limits';
 
 const COLUMNS_DESKTOP_VAR = '--vovapg-posts-grid-columns-desktop';
 const COLUMNS_TABLET_VAR = '--vovapg-posts-grid-columns-tablet';
@@ -156,6 +169,11 @@ const EXCLUDED_POST_TYPES = [
 
 const clamp = ( value, min, max ) => Math.min( Math.max( value, min ), max );
 
+const limitString = ( value, maxLength ) =>
+	Array.from( String( value || '' ) )
+		.slice( 0, maxLength )
+		.join( '' );
+
 const roundCssNumber = ( value ) => Number( value.toFixed( 3 ) );
 
 const getFontSizeValue = ( value, defaultValue, min, max ) => {
@@ -194,17 +212,24 @@ const normalizeQueryPosts = ( posts ) => {
 	}
 
 	return posts
+		.slice( 0, MAX_SELECTED_POSTS )
 		.map( ( post ) => {
 			const id = Number( post?.id );
 
-			if ( ! id ) {
+			if ( ! Number.isInteger( id ) || id < 1 ) {
 				return null;
 			}
 
 			return {
 				id,
-				subtype: post?.subtype || 'post',
-				title: getPostTitle( post ),
+				subtype: limitString(
+					post?.subtype || 'post',
+					MAX_OBJECT_SLUG_LENGTH
+				),
+				title: limitString(
+					getPostTitle( post ),
+					MAX_POST_TOKEN_TITLE_LENGTH
+				),
 			};
 		} )
 		.filter( Boolean );
@@ -212,10 +237,11 @@ const normalizeQueryPosts = ( posts ) => {
 
 const normalizeElements = ( elements ) => {
 	const allowedIds = DEFAULT_ELEMENTS.map( ( element ) => element.id );
-	const source =
+	const source = (
 		Array.isArray( elements ) && elements.length > 0
 			? elements
-			: DEFAULT_ELEMENTS;
+			: DEFAULT_ELEMENTS
+	).slice( 0, MAX_ELEMENTS );
 	const seen = new Set();
 	const next = [];
 
@@ -250,7 +276,9 @@ const normalizeMetaFieldValue = ( field ) =>
 
 const normalizeMetaFields = ( fields, options ) => {
 	const allowedValues = new Set( options.map( ( option ) => option.value ) );
-	const source = Array.isArray( fields ) ? fields : DEFAULT_META_FIELDS;
+	const source = (
+		Array.isArray( fields ) ? fields : DEFAULT_META_FIELDS
+	).slice( 0, MAX_META_FIELDS );
 	const next = [];
 	const seen = new Set();
 
@@ -283,18 +311,49 @@ const getMetaFieldOptions = ( taxonomies ) => {
 	return [ ...META_FIELD_OPTIONS, ...taxonomyOptions ];
 };
 
-const normalizeQuery = ( query ) => ( {
-	...DEFAULT_QUERY,
-	...( query || {} ),
-	dateRange: {
-		...DEFAULT_QUERY.dateRange,
-		...( query?.dateRange || {} ),
-	},
-	metaFilter: {
-		...DEFAULT_QUERY.metaFilter,
-		...( query?.metaFilter || {} ),
-	},
-} );
+const normalizeQuery = ( query ) => {
+	const normalized = {
+		...DEFAULT_QUERY,
+		...( query || {} ),
+		dateRange: {
+			...DEFAULT_QUERY.dateRange,
+			...( query?.dateRange || {} ),
+		},
+		metaFilter: {
+			...DEFAULT_QUERY.metaFilter,
+			...( query?.metaFilter || {} ),
+		},
+	};
+	const postsPerPage = Number( normalized.postsPerPage );
+
+	return {
+		...normalized,
+		postType: limitString(
+			normalized.postType || 'post',
+			MAX_OBJECT_SLUG_LENGTH
+		),
+		taxonomy: limitString( normalized.taxonomy, MAX_OBJECT_SLUG_LENGTH ),
+		terms: Array.isArray( normalized.terms )
+			? normalized.terms
+					.map( Number )
+					.filter(
+						( termId ) => Number.isInteger( termId ) && termId > 0
+					)
+					.slice( 0, MAX_TERMS )
+			: [],
+		keyword: limitString( normalized.keyword, MAX_KEYWORD_LENGTH ),
+		includePosts: normalizeQueryPosts( normalized.includePosts ),
+		excludePosts: normalizeQueryPosts( normalized.excludePosts ),
+		postsPerPage: clamp(
+			Number.isFinite( postsPerPage )
+				? Math.trunc( postsPerPage )
+				: DEFAULT_QUERY.postsPerPage,
+			1,
+			MAX_POSTS_PER_PAGE
+		),
+		posts: normalizeQueryPosts( normalized.posts ),
+	};
+};
 
 const getMetaFilterValueInputType = ( type ) => {
 	if ( type === 'date' ) {
@@ -356,14 +415,17 @@ const normalizeSearchResult = ( record ) => {
 	const id = Number( record?.id );
 	const subtype = record?.subtype;
 
-	if ( ! id || ! subtype ) {
+	if ( ! Number.isInteger( id ) || id < 1 || ! subtype ) {
 		return null;
 	}
 
 	return {
 		id,
-		subtype,
-		title: getPostTitle( record ),
+		subtype: limitString( subtype, MAX_OBJECT_SLUG_LENGTH ),
+		title: limitString(
+			getPostTitle( record ),
+			MAX_POST_TOKEN_TITLE_LENGTH
+		),
 	};
 };
 
@@ -480,7 +542,10 @@ const getPreviewAttributes = ( attributes, contextPostId = 0 ) => ( {
 	mobileColumns: attributes.mobileColumns,
 	horizontalGap: attributes.horizontalGap,
 	verticalGap: attributes.verticalGap,
-	imageSize: attributes.imageSize,
+	imageSize: limitString(
+		attributes.imageSize,
+		MAX_PRESENTATION_STRING_LENGTH
+	),
 	imageAspectRatio: attributes.imageAspectRatio,
 	imageObjectFit: attributes.imageObjectFit,
 	imageObjectPosition: attributes.imageObjectPosition,
@@ -493,21 +558,36 @@ const getPreviewAttributes = ( attributes, contextPostId = 0 ) => ( {
 	textLineHeight: attributes.textLineHeight,
 	elements: normalizeElements( attributes.elements ),
 	metaFields: Array.isArray( attributes.metaFields )
-		? attributes.metaFields
+		? attributes.metaFields.slice( 0, MAX_META_FIELDS )
 		: DEFAULT_META_FIELDS,
-	readMoreLabel: attributes.readMoreLabel,
+	readMoreLabel: limitString(
+		attributes.readMoreLabel,
+		MAX_READ_MORE_LABEL_LENGTH
+	),
 	readMoreStyle: attributes.readMoreStyle,
-	readMorePadding: attributes.readMorePadding,
+	readMorePadding: attributes.readMorePadding ?? attributes.readMorePaddingY,
 	fullCardClickable: attributes.fullCardClickable,
 	openLinksInNewTab: attributes.openLinksInNewTab,
 	excerptLength: attributes.excerptLength,
-	emptyStateText: attributes.emptyStateText,
+	emptyStateText: limitString(
+		attributes.emptyStateText,
+		MAX_EMPTY_STATE_TEXT_LENGTH
+	),
 	loadingSkeleton: attributes.loadingSkeleton,
 	paginationType: attributes.paginationType,
 	paginationAlignment: attributes.paginationAlignment,
-	accentColor: attributes.accentColor || DEFAULT_ACCENT_COLOR,
-	metaColor: attributes.metaColor || '',
-	excerptColor: attributes.excerptColor || '',
+	accentColor: limitString(
+		attributes.accentColor || DEFAULT_ACCENT_COLOR,
+		MAX_PRESENTATION_STRING_LENGTH
+	),
+	metaColor: limitString(
+		attributes.metaColor || '',
+		MAX_PRESENTATION_STRING_LENGTH
+	),
+	excerptColor: limitString(
+		attributes.excerptColor || '',
+		MAX_PRESENTATION_STRING_LENGTH
+	),
 } );
 
 function PostTokenField( {
@@ -603,6 +683,10 @@ function PostTokenField( {
 		const nextPosts = [];
 
 		tokens.forEach( ( token ) => {
+			if ( nextPosts.length >= MAX_SELECTED_POSTS ) {
+				return;
+			}
+
 			const post = tokenLookup[ token ];
 
 			if ( ! post ) {
@@ -618,8 +702,8 @@ function PostTokenField( {
 			seen.add( key );
 			nextPosts.push( {
 				id: post.id,
-				subtype: post.subtype,
-				title: post.title,
+				subtype: limitString( post.subtype, MAX_OBJECT_SLUG_LENGTH ),
+				title: limitString( post.title, MAX_POST_TOKEN_TITLE_LENGTH ),
 			} );
 		} );
 
@@ -785,6 +869,7 @@ function MetaFieldsControl( { fields, options, onChange } ) {
 			fieldItems
 				.filter( ( field ) => field.visible )
 				.map( ( field ) => field.value )
+				.slice( 0, MAX_META_FIELDS )
 		);
 	};
 
@@ -1011,7 +1096,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 		const timeoutId = setTimeout( () => {
 			apiFetch( {
-				path: '/vovapg/v1/posts-grid/render',
+				path: '/vovapg/v1/posts-grid/preview',
 				method: 'POST',
 				data: {
 					attributes: previewAttributes,
@@ -1129,7 +1214,8 @@ export default function Edit( { attributes, setAttributes } ) {
 		updateQuery( {
 			terms: tokens
 				.map( ( token ) => nameToId[ token ] )
-				.filter( Boolean ),
+				.filter( Boolean )
+				.slice( 0, MAX_TERMS ),
 		} );
 	};
 
@@ -1228,8 +1314,14 @@ export default function Edit( { attributes, setAttributes } ) {
 											'vova-posts-grid'
 										) }
 										value={ query.keyword }
+										maxLength={ MAX_KEYWORD_LENGTH }
 										onChange={ ( keyword ) =>
-											updateQuery( { keyword } )
+											updateQuery( {
+												keyword: limitString(
+													keyword,
+													MAX_KEYWORD_LENGTH
+												),
+											} )
 										}
 									/>
 									<SelectControl
@@ -1495,13 +1587,13 @@ export default function Edit( { attributes, setAttributes } ) {
 									DEFAULT_QUERY.postsPerPage
 								}
 								min={ 1 }
-								max={ 100 }
+								max={ MAX_POSTS_PER_PAGE }
 								onChange={ ( postsPerPage ) =>
 									updateQuery( {
 										postsPerPage: clamp(
 											postsPerPage || 1,
 											1,
-											100
+											MAX_POSTS_PER_PAGE
 										),
 									} )
 								}
@@ -1736,8 +1828,14 @@ export default function Edit( { attributes, setAttributes } ) {
 									'vova-posts-grid'
 								) }
 								value={ attributes.emptyStateText || '' }
+								maxLength={ MAX_EMPTY_STATE_TEXT_LENGTH }
 								onChange={ ( emptyStateText ) =>
-									setAttributes( { emptyStateText } )
+									setAttributes( {
+										emptyStateText: limitString(
+											emptyStateText,
+											MAX_EMPTY_STATE_TEXT_LENGTH
+										),
+									} )
 								}
 							/>
 							<ToggleControl
@@ -1828,8 +1926,14 @@ export default function Edit( { attributes, setAttributes } ) {
 									'vova-posts-grid'
 								) }
 								value={ attributes.readMoreLabel }
+								maxLength={ MAX_READ_MORE_LABEL_LENGTH }
 								onChange={ ( readMoreLabel ) =>
-									setAttributes( { readMoreLabel } )
+									setAttributes( {
+										readMoreLabel: limitString(
+											readMoreLabel,
+											MAX_READ_MORE_LABEL_LENGTH
+										),
+									} )
 								}
 							/>
 							{ ( attributes.readMoreStyle || 'button' ) ===

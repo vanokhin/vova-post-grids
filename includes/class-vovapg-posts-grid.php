@@ -15,6 +15,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class VOVAPG_Posts_Grid {
 	private const REST_NAMESPACE                 = 'vovapg/v1';
 	private const REST_ROUTE                     = '/posts-grid/render';
+	private const REST_PREVIEW_ROUTE             = '/posts-grid/preview';
+	private const MAX_PUBLIC_PAGE                = 100;
+	private const MAX_POSTS_PER_PAGE             = 50;
+	private const MAX_TERMS                      = 50;
+	private const MAX_SELECTED_POSTS             = 100;
+	private const MAX_KEYWORD_LENGTH             = 100;
+	private const MAX_REST_ATTRIBUTES_BYTES      = 65536;
+	private const MAX_POST_TOKEN_TITLE_LENGTH    = 200;
+	private const MAX_ELEMENTS                   = 5;
+	private const MAX_META_FIELDS                = 20;
+	private const MAX_READ_MORE_LABEL_LENGTH     = 100;
+	private const MAX_EMPTY_STATE_TEXT_LENGTH    = 300;
+	private const MAX_PRESENTATION_STRING_LENGTH = 100;
+	private const MAX_OBJECT_SLUG_LENGTH         = 64;
 	private const READ_MORE_BUTTON_PADDING_RATIO = 1.618;
 	private const READING_TIME_WORDS_PER_MINUTE  = 200;
 	private const META_TAXONOMY_PREFIX           = 'taxonomy:';
@@ -25,11 +39,23 @@ final class VOVAPG_Posts_Grid {
 	private const DEFAULT_READ_MORE_FONT_SIZE    = 16;
 
 	/**
-	 * Registers public REST routes for editor previews and AJAX pagination.
+	 * Registers REST routes for editor previews and AJAX pagination.
 	 *
 	 * @return void
 	 */
 	public static function register_rest_routes(): void {
+		$attributes_schema                      = self::get_rest_attributes_schema();
+		$attributes_schema['required']          = true;
+		$attributes_schema['sanitize_callback'] = 'rest_sanitize_request_arg';
+		$page_schema                            = array(
+			'type'              => 'integer',
+			'default'           => 1,
+			'minimum'           => 1,
+			'maximum'           => self::MAX_PUBLIC_PAGE,
+			'validate_callback' => array( __CLASS__, 'validate_rest_page' ),
+			'sanitize_callback' => 'rest_sanitize_request_arg',
+		);
+
 		register_rest_route(
 			self::REST_NAMESPACE,
 			self::REST_ROUTE,
@@ -37,31 +63,461 @@ final class VOVAPG_Posts_Grid {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( __CLASS__, 'render_ajax' ),
 				'permission_callback' => '__return_true',
+				'validate_callback'   => array( __CLASS__, 'validate_rest_request' ),
 				'args'                => array(
-					'attributes' => array(
-						'required' => false,
-					),
-					'page'       => array(
-						'required'          => false,
-						'sanitize_callback' => 'absint',
-					),
+					'attributes' => $attributes_schema,
+					'page'       => $page_schema,
+				),
+			)
+		);
+
+		$page_schema['maximum'] = 1;
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::REST_PREVIEW_ROUTE,
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'render_preview' ),
+				'permission_callback' => array( __CLASS__, 'can_render_preview' ),
+				'validate_callback'   => array( __CLASS__, 'validate_rest_request' ),
+				'args'                => array(
+					'attributes' => $attributes_schema,
+					'page'       => $page_schema,
 				),
 			)
 		);
 	}
 
 	/**
-	 * Renders a REST response for editor preview and frontend pagination.
+	 * Returns the REST schema for block attributes.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function get_rest_attributes_schema(): array {
+		$selected_post_schema  = array(
+			'type'                 => 'object',
+			'additionalProperties' => false,
+			'properties'           => array(
+				'id'      => array(
+					'type'     => 'integer',
+					'minimum'  => 1,
+					'required' => true,
+				),
+				'subtype' => array(
+					'type'      => 'string',
+					'maxLength' => self::MAX_OBJECT_SLUG_LENGTH,
+				),
+				'title'   => array(
+					'type'      => 'string',
+					'maxLength' => self::MAX_POST_TOKEN_TITLE_LENGTH,
+				),
+			),
+		);
+		$post_selection_schema = array(
+			'type'     => 'array',
+			'maxItems' => self::MAX_SELECTED_POSTS,
+			'items'    => $selected_post_schema,
+		);
+		$date_schema           = array(
+			'type'      => 'string',
+			'maxLength' => 10,
+			'pattern'   => '^(?:|[0-9]{4}-[0-9]{2}-[0-9]{2})$',
+		);
+		$query_schema          = array(
+			'type'                 => 'object',
+			'additionalProperties' => false,
+			'properties'           => array(
+				'queryType'          => array(
+					'type' => 'string',
+					'enum' => array( 'dynamic', 'specific' ),
+				),
+				'postType'           => array(
+					'type'      => 'string',
+					'maxLength' => self::MAX_OBJECT_SLUG_LENGTH,
+				),
+				'taxonomy'           => array(
+					'type'      => 'string',
+					'maxLength' => self::MAX_OBJECT_SLUG_LENGTH,
+				),
+				'terms'              => array(
+					'type'     => 'array',
+					'maxItems' => self::MAX_TERMS,
+					'items'    => array(
+						'type'    => 'integer',
+						'minimum' => 1,
+					),
+				),
+				'keyword'            => array(
+					'type'      => 'string',
+					'maxLength' => self::MAX_KEYWORD_LENGTH,
+				),
+				'author'             => array(
+					'type'    => 'integer',
+					'minimum' => 0,
+				),
+				'includePosts'       => $post_selection_schema,
+				'excludePosts'       => $post_selection_schema,
+				'postsPerPage'       => array(
+					'type'    => 'integer',
+					'minimum' => 1,
+					'maximum' => self::MAX_POSTS_PER_PAGE,
+				),
+				'order'              => array(
+					'type' => 'string',
+					'enum' => array( 'ASC', 'DESC' ),
+				),
+				'orderby'            => array(
+					'type' => 'string',
+					'enum' => array( 'date', 'title', 'modified', 'menu_order', 'comment_count', 'rand', 'post__in' ),
+				),
+				'ignoreSticky'       => array( 'type' => 'boolean' ),
+				'excludeCurrentPost' => array( 'type' => 'boolean' ),
+				'hasFeaturedImage'   => array( 'type' => 'boolean' ),
+				'dateRange'          => array(
+					'type'                 => 'object',
+					'additionalProperties' => false,
+					'properties'           => array(
+						'mode'   => array(
+							'type' => 'string',
+							'enum' => array( 'none', 'last7', 'last30', 'last90', 'custom' ),
+						),
+						'after'  => $date_schema,
+						'before' => $date_schema,
+					),
+				),
+				'metaFilter'         => array(
+					'type'                 => 'object',
+					'additionalProperties' => false,
+					'properties'           => array(
+						'enabled' => array( 'type' => 'boolean' ),
+						'key'     => array( 'type' => 'string' ),
+						'compare' => array(
+							'type' => 'string',
+							'enum' => array( 'exists', 'not_exists', 'equals', 'not_equals', 'contains', 'not_contains' ),
+						),
+						'value'   => array( 'type' => array( 'string', 'number', 'boolean' ) ),
+						'type'    => array(
+							'type' => 'string',
+							'enum' => array( 'text', 'number', 'date', 'boolean' ),
+						),
+					),
+				),
+				'posts'              => $post_selection_schema,
+			),
+		);
+
+		return array(
+			'type'                 => 'object',
+			'additionalProperties' => false,
+			'properties'           => array(
+				'query'               => $query_schema,
+				'desktopColumns'      => array(
+					'type'    => 'integer',
+					'minimum' => 1,
+					'maximum' => 6,
+				),
+				'tabletColumns'       => array(
+					'type'    => 'integer',
+					'minimum' => 1,
+					'maximum' => 4,
+				),
+				'mobileColumns'       => array(
+					'type'    => 'integer',
+					'minimum' => 1,
+					'maximum' => 3,
+				),
+				'horizontalGap'       => array(
+					'type'    => 'integer',
+					'minimum' => 0,
+					'maximum' => 96,
+				),
+				'verticalGap'         => array(
+					'type'    => 'integer',
+					'minimum' => 0,
+					'maximum' => 96,
+				),
+				'imageSize'           => array(
+					'type'      => 'string',
+					'maxLength' => self::MAX_PRESENTATION_STRING_LENGTH,
+				),
+				'imageAspectRatio'    => array(
+					'type' => 'string',
+					'enum' => array( 'auto', '1:1', '4:3', '3:2', '16:9', '3:4', '2:3' ),
+				),
+				'imageObjectFit'      => array(
+					'type' => 'string',
+					'enum' => array( 'cover', 'contain', 'fill', 'scale-down' ),
+				),
+				'imageObjectPosition' => array(
+					'type' => 'string',
+					'enum' => array( 'center center', 'center top', 'center bottom', 'left center', 'right center' ),
+				),
+				'imageBorderRadius'   => array(
+					'type'    => 'integer',
+					'minimum' => 0,
+					'maximum' => 1000,
+				),
+				'innerElementGap'     => array(
+					'type'    => 'integer',
+					'minimum' => 0,
+					'maximum' => 48,
+				),
+				'titleFontSize'       => array(
+					'type'    => 'number',
+					'minimum' => 10,
+					'maximum' => 72,
+				),
+				'metaFontSize'        => array(
+					'type'    => 'number',
+					'minimum' => 10,
+					'maximum' => 32,
+				),
+				'excerptFontSize'     => array(
+					'type'    => 'number',
+					'minimum' => 10,
+					'maximum' => 40,
+				),
+				'readMoreFontSize'    => array(
+					'type'    => 'number',
+					'minimum' => 10,
+					'maximum' => 40,
+				),
+				'textLineHeight'      => array(
+					'type'    => 'number',
+					'minimum' => 1,
+					'maximum' => 2.5,
+				),
+				'elements'            => array(
+					'type'     => 'array',
+					'maxItems' => self::MAX_ELEMENTS,
+					'items'    => array(
+						'type'                 => 'object',
+						'additionalProperties' => false,
+						'properties'           => array(
+							'id'      => array(
+								'type'     => 'string',
+								'enum'     => array( 'image', 'title', 'meta', 'excerpt', 'readMore' ),
+								'required' => true,
+							),
+							'visible' => array( 'type' => 'boolean' ),
+						),
+					),
+				),
+				'metaFields'          => array(
+					'type'     => 'array',
+					'maxItems' => self::MAX_META_FIELDS,
+					'items'    => array(
+						'type'      => 'string',
+						'maxLength' => self::MAX_PRESENTATION_STRING_LENGTH,
+					),
+				),
+				'readMoreLabel'       => array(
+					'type'      => 'string',
+					'maxLength' => self::MAX_READ_MORE_LABEL_LENGTH,
+				),
+				'readMoreStyle'       => array(
+					'type' => 'string',
+					'enum' => array( 'button', 'textLink' ),
+				),
+				'readMorePadding'     => array(
+					'type'    => 'number',
+					'minimum' => 0,
+					'maximum' => 80,
+				),
+				'readMorePaddingY'    => array(
+					'type'    => 'number',
+					'minimum' => 0,
+					'maximum' => 80,
+				),
+				'fullCardClickable'   => array( 'type' => 'boolean' ),
+				'openLinksInNewTab'   => array( 'type' => 'boolean' ),
+				'excerptLength'       => array(
+					'type'    => 'integer',
+					'minimum' => 5,
+					'maximum' => 80,
+				),
+				'emptyStateText'      => array(
+					'type'      => 'string',
+					'maxLength' => self::MAX_EMPTY_STATE_TEXT_LENGTH,
+				),
+				'loadingSkeleton'     => array( 'type' => 'boolean' ),
+				'contextPostId'       => array(
+					'type'    => 'integer',
+					'minimum' => 0,
+				),
+				'paginationType'      => array(
+					'type' => 'string',
+					'enum' => array( 'none', 'numbers', 'prevNext', 'numbersPrevNext' ),
+				),
+				'paginationAlignment' => array(
+					'type' => 'string',
+					'enum' => array( 'left', 'center', 'right' ),
+				),
+				'accentColor'         => array(
+					'type'      => 'string',
+					'maxLength' => self::MAX_PRESENTATION_STRING_LENGTH,
+				),
+				'metaColor'           => array(
+					'type'      => 'string',
+					'maxLength' => self::MAX_PRESENTATION_STRING_LENGTH,
+				),
+				'excerptColor'        => array(
+					'type'      => 'string',
+					'maxLength' => self::MAX_PRESENTATION_STRING_LENGTH,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Requires a native integer for REST page parameters before schema checks.
+	 *
+	 * @param mixed           $value   Page value.
+	 * @param WP_REST_Request $request REST request.
+	 * @param string          $param   Parameter name.
+	 * @return true|WP_Error
+	 */
+	public static function validate_rest_page( $value, WP_REST_Request $request, string $param ) {
+		if ( ! is_int( $value ) ) {
+			return new WP_Error(
+				'rest_invalid_type',
+				sprintf(
+					/* translators: %s: REST parameter name. */
+					__( '%s must be an integer.', 'vova-posts-grid' ),
+					$param
+				)
+			);
+		}
+
+		return rest_validate_request_arg( $value, $request, $param );
+	}
+
+	/**
+	 * Validates the attribute payload before REST argument sanitization.
 	 *
 	 * @param WP_REST_Request $request REST request.
-	 * @return WP_REST_Response
+	 * @return true|WP_Error
 	 */
-	public static function render_ajax( WP_REST_Request $request ): WP_REST_Response {
+	public static function validate_rest_request( WP_REST_Request $request ) {
+		$attributes = $request->get_param( 'attributes' );
+		$size_check = self::validate_rest_attributes_size( $attributes );
+
+		if ( is_wp_error( $size_check ) ) {
+			return $size_check;
+		}
+
+		$schema_check = rest_validate_value_from_schema(
+			$attributes,
+			self::get_rest_attributes_schema(),
+			'attributes'
+		);
+
+		if ( is_wp_error( $schema_check ) ) {
+			$schema_check->add_data( array( 'status' => 400 ) );
+		}
+
+		return $schema_check;
+	}
+
+	/**
+	 * Checks whether the current user may use the editor preview endpoint.
+	 *
+	 * @return bool
+	 */
+	public static function can_render_preview(): bool {
+		return current_user_can( 'edit_posts' );
+	}
+
+	/**
+	 * Renders a REST response for frontend pagination.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function render_ajax( WP_REST_Request $request ) {
 		$attributes = $request->get_param( 'attributes' );
 		$attributes = is_array( $attributes ) ? $attributes : array();
-		$page       = max( 1, absint( $request->get_param( 'page' ) ) );
-		$settings   = self::normalize_attributes( $attributes );
-		$result     = self::render_content( $settings, $page );
+		$size_check = self::validate_rest_attributes_size( $attributes );
+
+		if ( is_wp_error( $size_check ) ) {
+			return $size_check;
+		}
+
+		$settings = self::normalize_attributes( $attributes );
+
+		if ( ! self::is_public_ajax_query_allowed( $settings ) ) {
+			return new WP_Error(
+				'vovapg_public_ajax_query_not_allowed',
+				__( 'Public pagination is unavailable for random ordering or keyword searches.', 'vova-posts-grid' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return self::render_rest_response( $settings, (int) $request->get_param( 'page' ) );
+	}
+
+	/**
+	 * Renders a REST response for the block editor preview.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function render_preview( WP_REST_Request $request ) {
+		$attributes = $request->get_param( 'attributes' );
+		$attributes = is_array( $attributes ) ? $attributes : array();
+		$size_check = self::validate_rest_attributes_size( $attributes );
+
+		if ( is_wp_error( $size_check ) ) {
+			return $size_check;
+		}
+
+		$settings = self::normalize_attributes( $attributes );
+
+		if ( ! self::is_public_ajax_query_allowed( $settings ) ) {
+			$settings['paginationType'] = 'none';
+		}
+
+		return self::render_rest_response( $settings, 1 );
+	}
+
+	/**
+	 * Rejects oversized REST attribute payloads before query preparation.
+	 *
+	 * @param mixed $attributes REST attributes.
+	 * @return true|WP_Error
+	 */
+	private static function validate_rest_attributes_size( $attributes ) {
+		$encoded = wp_json_encode( $attributes );
+
+		if ( ! is_string( $encoded ) ) {
+			return new WP_Error(
+				'vovapg_invalid_rest_attributes',
+				__( 'Posts Grid attributes could not be encoded.', 'vova-posts-grid' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( strlen( $encoded ) > self::MAX_REST_ATTRIBUTES_BYTES ) {
+			return new WP_Error(
+				'vovapg_rest_attributes_too_large',
+				__( 'Posts Grid attributes exceed the maximum allowed size.', 'vova-posts-grid' ),
+				array( 'status' => 413 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns the shared successful REST response format.
+	 *
+	 * @param array<string, mixed> $settings Normalized settings.
+	 * @param int                  $page     Requested page.
+	 * @return WP_REST_Response
+	 */
+	private static function render_rest_response( array $settings, int $page ): WP_REST_Response {
+		$result = self::render_content( $settings, $page );
 
 		return rest_ensure_response(
 			array(
@@ -82,12 +538,15 @@ final class VOVAPG_Posts_Grid {
 	public static function render_block( array $attributes ): string {
 		$settings                  = self::normalize_attributes( $attributes );
 		$settings['contextPostId'] = self::get_context_post_id();
-		$result                    = self::render_content( $settings, 1 );
-		$attributes_json           = wp_json_encode( $settings );
+		$ajax_query_allowed        = self::is_public_ajax_query_allowed( $settings );
+		$render_settings           = $settings;
 
-		if ( ! is_string( $attributes_json ) ) {
-			$attributes_json = '{}';
+		if ( ! $ajax_query_allowed ) {
+			$render_settings['paginationType'] = 'none';
 		}
+
+		$result       = self::render_content( $render_settings, 1 );
+		$ajax_enabled = $ajax_query_allowed && 'none' !== $settings['paginationType'] && $result['max_num_pages'] > 1;
 
 		$classes = array(
 			'vovapg-posts-grid',
@@ -102,16 +561,25 @@ final class VOVAPG_Posts_Grid {
 			$classes[] = 'vovapg-posts-grid--has-loading-skeleton';
 		}
 
-		$wrapper_attributes = get_block_wrapper_attributes(
-			array(
-				'class'                  => implode( ' ', $classes ),
-				'style'                  => self::get_wrapper_style( $settings ),
-				'data-vovapg-block'      => 'posts-grid',
-				'data-vovapg-rest-url'   => esc_url_raw( rest_url( self::REST_NAMESPACE . self::REST_ROUTE ) ),
-				'data-vovapg-attributes' => $attributes_json,
-				'data-vovapg-page'       => '1',
-			)
+		$wrapper_data = array(
+			'class'             => implode( ' ', $classes ),
+			'style'             => self::get_wrapper_style( $settings ),
+			'data-vovapg-block' => 'posts-grid',
 		);
+
+		if ( $ajax_enabled ) {
+			$attributes_json = wp_json_encode( $settings );
+
+			if ( ! is_string( $attributes_json ) ) {
+				$attributes_json = '{}';
+			}
+
+			$wrapper_data['data-vovapg-rest-url']   = esc_url_raw( rest_url( self::REST_NAMESPACE . self::REST_ROUTE ) );
+			$wrapper_data['data-vovapg-attributes'] = $attributes_json;
+			$wrapper_data['data-vovapg-page']       = '1';
+		}
+
+		$wrapper_attributes = get_block_wrapper_attributes( $wrapper_data );
 
 		ob_start();
 		?>
@@ -151,6 +619,12 @@ final class VOVAPG_Posts_Grid {
 		$accent_color       = isset( $attributes['accentColor'] ) ? sanitize_text_field( (string) $attributes['accentColor'] ) : self::DEFAULT_ACCENT_COLOR;
 		$meta_color         = isset( $attributes['metaColor'] ) ? sanitize_text_field( (string) $attributes['metaColor'] ) : '';
 		$excerpt_color      = isset( $attributes['excerptColor'] ) ? sanitize_text_field( (string) $attributes['excerptColor'] ) : '';
+		$image_size         = self::limit_string( $image_size, self::MAX_PRESENTATION_STRING_LENGTH );
+		$read_more_label    = self::limit_string( $read_more_label, self::MAX_READ_MORE_LABEL_LENGTH );
+		$empty_state_text   = self::limit_string( $empty_state_text, self::MAX_EMPTY_STATE_TEXT_LENGTH );
+		$accent_color       = self::limit_string( $accent_color, self::MAX_PRESENTATION_STRING_LENGTH );
+		$meta_color         = self::limit_string( $meta_color, self::MAX_PRESENTATION_STRING_LENGTH );
+		$excerpt_color      = self::limit_string( $excerpt_color, self::MAX_PRESENTATION_STRING_LENGTH );
 
 		$allowed_aspect_ratios = array( 'auto', '1:1', '4:3', '3:2', '16:9', '3:4', '2:3' );
 		if ( ! in_array( $image_aspect_ratio, $allowed_aspect_ratios, true ) ) {
@@ -235,6 +709,9 @@ final class VOVAPG_Posts_Grid {
 		$posts_per_page = isset( $query['postsPerPage'] ) ? (int) $query['postsPerPage'] : 6;
 		$order          = isset( $query['order'] ) ? strtoupper( sanitize_key( (string) $query['order'] ) ) : 'DESC';
 		$orderby        = isset( $query['orderby'] ) ? sanitize_key( (string) $query['orderby'] ) : 'date';
+		$post_type      = self::limit_string( $post_type, self::MAX_OBJECT_SLUG_LENGTH );
+		$taxonomy       = self::limit_string( $taxonomy, self::MAX_OBJECT_SLUG_LENGTH );
+		$keyword        = self::limit_string( $keyword, self::MAX_KEYWORD_LENGTH );
 
 		if ( ! self::is_public_post_type( $post_type ) ) {
 			$post_type = 'post';
@@ -256,12 +733,12 @@ final class VOVAPG_Posts_Grid {
 			'queryType'          => $query_type,
 			'postType'           => $post_type,
 			'taxonomy'           => $taxonomy,
-			'terms'              => self::normalize_ids( $query['terms'] ?? array() ),
+			'terms'              => self::normalize_ids( $query['terms'] ?? array(), self::MAX_TERMS ),
 			'keyword'            => $keyword,
 			'author'             => $author,
 			'includePosts'       => self::normalize_post_selection( $query['includePosts'] ?? array() ),
 			'excludePosts'       => self::normalize_post_selection( $query['excludePosts'] ?? array() ),
-			'postsPerPage'       => self::clamp_int( $posts_per_page, 1, 100 ),
+			'postsPerPage'       => self::clamp_int( $posts_per_page, 1, self::MAX_POSTS_PER_PAGE ),
 			'order'              => $order,
 			'orderby'            => $orderby,
 			'ignoreSticky'       => array_key_exists( 'ignoreSticky', $query ) ? (bool) $query['ignoreSticky'] : true,
@@ -420,7 +897,7 @@ final class VOVAPG_Posts_Grid {
 			),
 		);
 		$allowed  = wp_list_pluck( $defaults, 'id' );
-		$source   = is_array( $elements ) && $elements ? $elements : $defaults;
+		$source   = is_array( $elements ) && $elements ? array_slice( $elements, 0, self::MAX_ELEMENTS ) : $defaults;
 		$next     = array();
 		$seen     = array();
 
@@ -461,7 +938,7 @@ final class VOVAPG_Posts_Grid {
 	 * @return array<int, string>
 	 */
 	private static function normalize_meta_fields( $fields ): array {
-		$source = is_array( $fields ) ? $fields : array( 'date', 'author', 'categories' );
+		$source = is_array( $fields ) ? array_slice( $fields, 0, self::MAX_META_FIELDS ) : array( 'date', 'author', 'categories' );
 		$next   = array();
 		$seen   = array();
 
@@ -492,7 +969,7 @@ final class VOVAPG_Posts_Grid {
 			return '';
 		}
 
-		$field   = trim( (string) $field );
+		$field   = self::limit_string( trim( (string) $field ), self::MAX_PRESENTATION_STRING_LENGTH );
 		$allowed = array( 'date', 'author', 'categories', 'comments', 'modifiedDate', 'readingTime' );
 
 		if ( in_array( $field, $allowed, true ) ) {
@@ -511,6 +988,18 @@ final class VOVAPG_Posts_Grid {
 	}
 
 	/**
+	 * Checks whether normalized settings are safe for public AJAX pagination.
+	 *
+	 * @param array<string, mixed> $settings Normalized settings.
+	 * @return bool
+	 */
+	private static function is_public_ajax_query_allowed( array $settings ): bool {
+		$query = $settings['query'];
+
+		return 'rand' !== $query['orderby'] && '' === $query['keyword'];
+	}
+
+	/**
 	 * Renders grid content without the outer block wrapper.
 	 *
 	 * @param array<string, mixed> $settings Normalized settings.
@@ -518,14 +1007,14 @@ final class VOVAPG_Posts_Grid {
 	 * @return array{html:string,page:int,max_num_pages:int,found_posts:int}
 	 */
 	private static function render_content( array $settings, int $page ): array {
+		$page       = self::clamp_int( $page, 1, self::MAX_PUBLIC_PAGE );
 		$query_args = self::build_query_args( $settings, $page );
 
 		if ( empty( $query_args ) ) {
-			return self::empty_result( $settings['emptyStateText'] );
+			return self::empty_result( $settings['emptyStateText'], $page );
 		}
 
 		$posts_query = new WP_Query( $query_args );
-		$page        = max( 1, min( $page, max( 1, (int) $posts_query->max_num_pages ) ) );
 
 		ob_start();
 
@@ -561,12 +1050,13 @@ final class VOVAPG_Posts_Grid {
 	 * Returns an empty render result.
 	 *
 	 * @param string $message Empty message.
+	 * @param int    $page    Requested page.
 	 * @return array{html:string,page:int,max_num_pages:int,found_posts:int}
 	 */
-	private static function empty_result( string $message ): array {
+	private static function empty_result( string $message, int $page = 1 ): array {
 		return array(
 			'html'          => '<div class="vovapg-posts-grid__empty">' . esc_html( $message ) . '</div>',
-			'page'          => 1,
+			'page'          => $page,
 			'max_num_pages' => 0,
 			'found_posts'   => 0,
 		);
@@ -584,15 +1074,17 @@ final class VOVAPG_Posts_Grid {
 		$exclude_ids = self::get_selected_post_ids( $query['excludePosts'] );
 
 		if ( 'specific' === $query['queryType'] ) {
-			$post_ids = array_values( array_diff( self::get_selected_post_ids( $query['posts'] ), $exclude_ids ) );
+			$post_ids   = array_values( array_diff( self::get_selected_post_ids( $query['posts'] ), $exclude_ids ) );
+			$post_types = self::get_selected_post_types( $query['posts'] );
 
-			if ( empty( $post_ids ) ) {
+			if ( empty( $post_ids ) || empty( $post_types ) ) {
 				return array();
 			}
 
 			$args = array(
-				'post_type'           => self::get_selected_post_types( $query['posts'] ),
+				'post_type'           => $post_types,
 				'post_status'         => 'publish',
+				'has_password'        => false,
 				'post__in'            => $post_ids,
 				'orderby'             => 'post__in',
 				'posts_per_page'      => $query['postsPerPage'],
@@ -622,6 +1114,7 @@ final class VOVAPG_Posts_Grid {
 		$args = array(
 			'post_type'           => $query['postType'],
 			'post_status'         => 'publish',
+			'has_password'        => false,
 			'posts_per_page'      => $query['postsPerPage'],
 			'paged'               => max( 1, $page ),
 			'order'               => $query['order'],
@@ -856,12 +1349,12 @@ final class VOVAPG_Posts_Grid {
 	/**
 	 * Renders a single post card.
 	 *
-	 * @param WP_Post|null         $post     Post object.
+	 * @param mixed                $post     Post object.
 	 * @param array<string, mixed> $settings Normalized settings.
 	 * @return void
 	 */
-	private static function render_post_card( ?WP_Post $post, array $settings ): void {
-		if ( ! $post ) {
+	private static function render_post_card( $post, array $settings ): void {
+		if ( ! self::can_render_public_post( $post ) ) {
 			return;
 		}
 
@@ -898,6 +1391,31 @@ final class VOVAPG_Posts_Grid {
 			?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Checks whether a post may be rendered to a public visitor.
+	 *
+	 * @param mixed $post Post object.
+	 * @return bool
+	 */
+	private static function can_render_public_post( $post ): bool {
+		$allowed = $post instanceof WP_Post
+			&& 'publish' === $post->post_status
+			&& '' === $post->post_password
+			&& is_post_publicly_viewable( $post );
+
+		if ( ! $allowed ) {
+			return false;
+		}
+
+		/**
+		 * Filters whether a core-public post may be rendered by Posts Grid.
+		 *
+		 * @param bool    $allowed Whether the post may be rendered.
+		 * @param WP_Post $post    Post object.
+		 */
+		return (bool) apply_filters( 'vovapg_can_render_public_post', $allowed, $post );
 	}
 
 	/**
@@ -1252,6 +1770,8 @@ final class VOVAPG_Posts_Grid {
 	 * @return string Pagination HTML.
 	 */
 	private static function render_pagination( array $settings, int $current_page, int $max_num_pages ): string {
+		$max_num_pages = min( $max_num_pages, self::MAX_PUBLIC_PAGE );
+
 		if ( 'none' === $settings['paginationType'] || $max_num_pages <= 1 ) {
 			return '';
 		}
@@ -1442,7 +1962,7 @@ final class VOVAPG_Posts_Grid {
 	private static function is_public_taxonomy( string $taxonomy ): bool {
 		$object = get_taxonomy( $taxonomy );
 
-		return $object instanceof WP_Taxonomy && ! empty( $object->public );
+		return $object instanceof WP_Taxonomy && is_taxonomy_viewable( $object );
 	}
 
 	/**
@@ -1454,7 +1974,7 @@ final class VOVAPG_Posts_Grid {
 	private static function is_public_post_type( string $post_type ): bool {
 		$object = get_post_type_object( $post_type );
 
-		return $object instanceof WP_Post_Type && ! empty( $object->public );
+		return $object instanceof WP_Post_Type && is_post_type_viewable( $object );
 	}
 
 	/**
@@ -1511,7 +2031,11 @@ final class VOVAPG_Posts_Grid {
 
 		$post_types = array_values( array_unique( $post_types ) );
 
-		return $post_types ? $post_types : array_values( get_post_types( array( 'public' => true ), 'names' ) );
+		if ( $post_types ) {
+			return $post_types;
+		}
+
+		return self::is_public_post_type( 'post' ) ? array( 'post' ) : array();
 	}
 
 	/**
@@ -1521,7 +2045,7 @@ final class VOVAPG_Posts_Grid {
 	 * @return array<int, array{id:int,subtype:string,title:string}>
 	 */
 	private static function normalize_post_selection( $posts ): array {
-		$source = is_array( $posts ) ? $posts : array();
+		$source = is_array( $posts ) ? array_slice( $posts, 0, self::MAX_SELECTED_POSTS ) : array();
 		$next   = array();
 		$seen   = array();
 
@@ -1532,7 +2056,9 @@ final class VOVAPG_Posts_Grid {
 
 			$id      = absint( $post['id'] );
 			$subtype = isset( $post['subtype'] ) ? sanitize_key( (string) $post['subtype'] ) : 'post';
+			$subtype = self::limit_string( $subtype, self::MAX_OBJECT_SLUG_LENGTH );
 			$title   = isset( $post['title'] ) ? sanitize_text_field( (string) $post['title'] ) : '';
+			$title   = self::limit_string( $title, self::MAX_POST_TOKEN_TITLE_LENGTH );
 			$key     = $subtype . ':' . $id;
 
 			if ( ! $id || isset( $seen[ $key ] ) ) {
@@ -1553,13 +2079,29 @@ final class VOVAPG_Posts_Grid {
 	/**
 	 * Normalizes integer IDs.
 	 *
-	 * @param mixed $ids Raw IDs.
+	 * @param mixed $ids   Raw IDs.
+	 * @param int   $limit Maximum source items to process.
 	 * @return array<int, int>
 	 */
-	private static function normalize_ids( $ids ): array {
-		$source = is_array( $ids ) ? $ids : array();
+	private static function normalize_ids( $ids, int $limit ): array {
+		$source = is_array( $ids ) ? array_slice( $ids, 0, $limit ) : array();
 
 		return array_values( array_unique( array_filter( array_map( 'absint', $source ) ) ) );
+	}
+
+	/**
+	 * Limits a string without splitting multibyte characters when possible.
+	 *
+	 * @param string $value  String value.
+	 * @param int    $length Maximum character length.
+	 * @return string
+	 */
+	private static function limit_string( string $value, int $length ): string {
+		if ( function_exists( 'mb_substr' ) ) {
+			return mb_substr( $value, 0, $length );
+		}
+
+		return substr( $value, 0, $length );
 	}
 
 	/**

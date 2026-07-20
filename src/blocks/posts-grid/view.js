@@ -1,3 +1,5 @@
+import { MAX_POSTS_PER_PAGE, getPublicPageNumber } from './limits';
+
 const parseAttributes = ( value ) => {
 	try {
 		const attributes = JSON.parse( value || '{}' );
@@ -21,7 +23,7 @@ const getSkeletonCardCount = ( content, attributes ) => {
 
 	return Math.min(
 		Math.max( Number.isFinite( postsPerPage ) ? postsPerPage : 6, 1 ),
-		100
+		MAX_POSTS_PER_PAGE
 	);
 };
 
@@ -51,9 +53,9 @@ const initPostsGrid = ( block ) => {
 	};
 
 	const loadPage = ( page ) => {
-		const nextPage = Number( page );
+		const nextPage = getPublicPageNumber( page );
 
-		if ( ! Number.isFinite( nextPage ) || nextPage < 1 ) {
+		if ( nextPage === null ) {
 			return;
 		}
 

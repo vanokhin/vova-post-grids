@@ -34,18 +34,36 @@ msgstr ""
 msgid "Vova Anokhin"
 msgstr ""
 
-#: includes/class-vovapg-posts-grid.php:206
+#. translators: %s: REST parameter name.
+#: includes/class-vovapg-posts-grid.php:387
+#, php-format
+msgid "%s must be an integer."
+msgstr ""
+
+#: includes/class-vovapg-posts-grid.php:452
+msgid "Public pagination is unavailable for random ordering or keyword searches."
+msgstr ""
+
+#: includes/class-vovapg-posts-grid.php:496
+msgid "Posts Grid attributes could not be encoded."
+msgstr ""
+
+#: includes/class-vovapg-posts-grid.php:504
+msgid "Posts Grid attributes exceed the maximum allowed size."
+msgstr ""
+
+#: includes/class-vovapg-posts-grid.php:680
 #: src/blocks/posts-grid/config.js:46
 msgid "Read more"
 msgstr ""
 
-#: includes/class-vovapg-posts-grid.php:212
-#: src/blocks/posts-grid/edit.js:1734
+#: includes/class-vovapg-posts-grid.php:686
+#: src/blocks/posts-grid/edit.js:1826
 msgid "No posts found."
 msgstr ""
 
 #. translators: %s: number of comments.
-#: includes/class-vovapg-posts-grid.php:1018
+#: includes/class-vovapg-posts-grid.php:1541
 #, php-format
 msgid "%s comment"
 msgid_plural "%s comments"
@@ -53,7 +71,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: number of minutes.
-#: includes/class-vovapg-posts-grid.php:1046
+#: includes/class-vovapg-posts-grid.php:1569
 #, php-format
 msgid "%s min read"
 msgid_plural "%s mins read"
@@ -61,25 +79,25 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: post title.
-#: includes/class-vovapg-posts-grid.php:1193
+#: includes/class-vovapg-posts-grid.php:1716
 #, php-format
 msgid "Open %s"
 msgstr ""
 
-#: includes/class-vovapg-posts-grid.php:1259
+#: includes/class-vovapg-posts-grid.php:1785
 msgid "Posts pagination"
 msgstr ""
 
-#: includes/class-vovapg-posts-grid.php:1262
+#: includes/class-vovapg-posts-grid.php:1788
 msgid "Previous"
 msgstr ""
 
-#: includes/class-vovapg-posts-grid.php:1278
+#: includes/class-vovapg-posts-grid.php:1804
 msgid "Next"
 msgstr ""
 
 #: src/blocks/posts-grid/config.js:42
-#: src/blocks/posts-grid/edit.js:1663
+#: src/blocks/posts-grid/edit.js:1755
 msgid "Image"
 msgstr ""
 
@@ -89,7 +107,7 @@ msgid "Title"
 msgstr ""
 
 #: src/blocks/posts-grid/config.js:44
-#: src/blocks/posts-grid/edit.js:824
+#: src/blocks/posts-grid/edit.js:909
 msgid "Meta fields"
 msgstr ""
 
@@ -104,7 +122,7 @@ msgid "Date"
 msgstr ""
 
 #: src/blocks/posts-grid/config.js:51
-#: src/blocks/posts-grid/edit.js:1236
+#: src/blocks/posts-grid/edit.js:1328
 msgid "Author"
 msgstr ""
 
@@ -301,7 +319,7 @@ msgid "Text link"
 msgstr ""
 
 #: src/blocks/posts-grid/config.js:206
-#: src/blocks/posts-grid/edit.js:949
+#: src/blocks/posts-grid/edit.js:1034
 msgid "None"
 msgstr ""
 
@@ -317,299 +335,299 @@ msgstr ""
 msgid "Numbers + Previous / Next"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:77
-#: src/blocks/posts-grid/edit.js:1157
+#: src/blocks/posts-grid/edit.js:90
+#: src/blocks/posts-grid/edit.js:1243
 msgid "Query"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:82
+#: src/blocks/posts-grid/edit.js:95
 msgid "Block"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:87
+#: src/blocks/posts-grid/edit.js:100
 msgid "Card"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:96
+#: src/blocks/posts-grid/edit.js:109
 msgid "Title text size"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:104
+#: src/blocks/posts-grid/edit.js:117
 msgid "Meta fields text size"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:112
+#: src/blocks/posts-grid/edit.js:125
 msgid "Excerpt text size"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:120
+#: src/blocks/posts-grid/edit.js:133
 msgid "Read more text size"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:130
+#: src/blocks/posts-grid/edit.js:143
 msgid "Accent color"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:135
+#: src/blocks/posts-grid/edit.js:148
 msgid "Meta color"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:140
+#: src/blocks/posts-grid/edit.js:153
 msgid "Excerpt color"
 msgstr ""
 
 #. translators: %s: taxonomy name.
-#: src/blocks/posts-grid/edit.js:277
+#: src/blocks/posts-grid/edit.js:305
 #, js-format
 msgid "%s badges"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:325
+#: src/blocks/posts-grid/edit.js:384
 msgid "Post"
 msgstr ""
 
 #. translators: %d: post ID.
-#: src/blocks/posts-grid/edit.js:336
+#: src/blocks/posts-grid/edit.js:395
 #, js-format
 msgid "Post #%d"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:697
+#: src/blocks/posts-grid/edit.js:781
 msgid "Card elements"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:742
-#: src/blocks/posts-grid/edit.js:869
+#: src/blocks/posts-grid/edit.js:826
+#: src/blocks/posts-grid/edit.js:954
 msgid "Visible"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:978
+#: src/blocks/posts-grid/edit.js:1063
 msgid "Any author"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1034
+#: src/blocks/posts-grid/edit.js:1119
 msgid "Could not load the posts grid preview."
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1147
+#: src/blocks/posts-grid/edit.js:1233
 msgid "Posts grid settings sections"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1159
+#: src/blocks/posts-grid/edit.js:1245
 msgid "Query type"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1168
+#: src/blocks/posts-grid/edit.js:1254
 msgid "Posts"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1171
+#: src/blocks/posts-grid/edit.js:1257
 msgid "Search posts"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1182
+#: src/blocks/posts-grid/edit.js:1268
 msgid "Post type"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1199
+#: src/blocks/posts-grid/edit.js:1285
 msgid "Taxonomy"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1214
+#: src/blocks/posts-grid/edit.js:1300
 msgid "Terms"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1226
+#: src/blocks/posts-grid/edit.js:1312
 msgid "Keyword"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1249
+#: src/blocks/posts-grid/edit.js:1341
 msgid "Exclude current post"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1261
+#: src/blocks/posts-grid/edit.js:1353
 msgid "Only posts with featured images"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1271
+#: src/blocks/posts-grid/edit.js:1363
 msgid "Date range"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1285
+#: src/blocks/posts-grid/edit.js:1377
 msgid "After"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1296
+#: src/blocks/posts-grid/edit.js:1388
 msgid "Before"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1310
+#: src/blocks/posts-grid/edit.js:1402
 msgid "Filter by custom field"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1322
+#: src/blocks/posts-grid/edit.js:1414
 msgid "Meta key"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1332
+#: src/blocks/posts-grid/edit.js:1424
 msgid "Compare"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1347
+#: src/blocks/posts-grid/edit.js:1439
 msgid "Type"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1372
-#: src/blocks/posts-grid/edit.js:1406
+#: src/blocks/posts-grid/edit.js:1464
+#: src/blocks/posts-grid/edit.js:1498
 msgid "Value"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1381
+#: src/blocks/posts-grid/edit.js:1473
 msgid "True"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1388
+#: src/blocks/posts-grid/edit.js:1480
 msgid "False"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1424
+#: src/blocks/posts-grid/edit.js:1516
 msgid "Include posts"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1430
+#: src/blocks/posts-grid/edit.js:1522
 msgid "Search posts to include"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1439
+#: src/blocks/posts-grid/edit.js:1531
 msgid "Exclude posts"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1445
+#: src/blocks/posts-grid/edit.js:1537
 msgid "Search posts to exclude"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1454
+#: src/blocks/posts-grid/edit.js:1546
 msgid "Order by"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1465
+#: src/blocks/posts-grid/edit.js:1557
 msgid "Order"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1476
+#: src/blocks/posts-grid/edit.js:1568
 msgid "Ignore sticky posts"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1488
+#: src/blocks/posts-grid/edit.js:1580
 msgid "Posts per page"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1512
+#: src/blocks/posts-grid/edit.js:1604
 msgid "Layout"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1514
+#: src/blocks/posts-grid/edit.js:1606
 msgid "Desktop columns"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1534
+#: src/blocks/posts-grid/edit.js:1626
 msgid "Tablet columns"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1554
+#: src/blocks/posts-grid/edit.js:1646
 msgid "Mobile columns"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1574
+#: src/blocks/posts-grid/edit.js:1666
 msgid "Horizontal gap"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1594
+#: src/blocks/posts-grid/edit.js:1686
 msgid "Vertical gap"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1614
+#: src/blocks/posts-grid/edit.js:1706
 msgid "Inner element gap"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1637
-#: src/blocks/posts-grid/edit.js:1640
+#: src/blocks/posts-grid/edit.js:1729
+#: src/blocks/posts-grid/edit.js:1732
 msgid "Pagination"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1648
+#: src/blocks/posts-grid/edit.js:1740
 msgid "Pagination alignment"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1665
+#: src/blocks/posts-grid/edit.js:1757
 msgid "Image size"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1673
+#: src/blocks/posts-grid/edit.js:1765
 msgid "Image aspect ratio"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1684
+#: src/blocks/posts-grid/edit.js:1776
 msgid "Image fit"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1692
+#: src/blocks/posts-grid/edit.js:1784
 msgid "Image position"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1706
+#: src/blocks/posts-grid/edit.js:1798
 msgid "Image border radius"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1728
+#: src/blocks/posts-grid/edit.js:1820
 msgid "States"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1730
+#: src/blocks/posts-grid/edit.js:1822
 msgid "Empty state text"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1744
+#: src/blocks/posts-grid/edit.js:1842
 msgid "Loading skeleton"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1757
+#: src/blocks/posts-grid/edit.js:1855
 msgid "Card content"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1775
+#: src/blocks/posts-grid/edit.js:1873
 msgid "Excerpt length"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1795
+#: src/blocks/posts-grid/edit.js:1893
 msgid "Full card clickable"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1805
+#: src/blocks/posts-grid/edit.js:1903
 msgid "Open links in new tab"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1815
+#: src/blocks/posts-grid/edit.js:1913
 msgid "Read more style"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1826
+#: src/blocks/posts-grid/edit.js:1924
 msgid "Read more label"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1838
+#: src/blocks/posts-grid/edit.js:1942
 msgid "Read More Button Padding"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1868
+#: src/blocks/posts-grid/edit.js:1972
 msgid "Typography"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1899
+#: src/blocks/posts-grid/edit.js:2003
 msgid "Text line height"
 msgstr ""
 
-#: src/blocks/posts-grid/edit.js:1926
+#: src/blocks/posts-grid/edit.js:2030
 msgid "Colors"
 msgstr ""
 
