@@ -638,6 +638,7 @@ final class VOVAPG_Posts_Grid {
 		}
 
 		if ( ! empty( $exclude_ids ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- Exclusions are explicitly configured by the block user and must preserve query pagination.
 			$args['post__not_in'] = $exclude_ids;
 		}
 
