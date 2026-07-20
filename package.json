@@ -1,6 +1,6 @@
 {
 	"name": "vova-posts-grid",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "A responsive Posts Grid block with flexible queries and AJAX pagination.",
 	"author": "Vova Anokhin",
 	"license": "GPL-2.0-or-later",

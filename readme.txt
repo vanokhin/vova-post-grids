@@ -57,6 +57,10 @@ The release archive includes the human-readable block source and locked npm depe
 
 == Changelog ==
 
+= 1.0.1 =
+
+- Hardened REST API endpoint
+
 = 1.0.0 =
 
 - Initial WordPress.org release.
