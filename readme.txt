@@ -57,6 +57,10 @@ The release archive includes the human-readable block source and locked npm depe
 
 == Changelog ==
 
+= 2.0.0 =
+
+- Plugin name changed to Vova's Post Grids (formerly Posts Grid)
+
 = 1.0.1 =
 
 - Hardened REST API endpoint
